@@ -1,0 +1,193 @@
+name: WhatsApp Chatbot - Deploy Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente de deploy'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+      
+      deploy_type:
+        description: 'Tipo de deploy'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - quick
+          - assets-only
+      
+      message:
+        description: 'Mensagem do deploy'
+        required: false
+        default: 'Deploy manual do chatbot'
+        type: string
+      
+      notify:
+        description: 'Enviar notificação?'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  # Job 1: Verificar arquivos
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v3
+      
+      - name: 🔍 Verificar estrutura
+        run: |
+          echo "📁 Verificando estrutura do projeto..."
+          echo "Ambiente: ${{ inputs.environment }}"
+          echo "Tipo de deploy: ${{ inputs.deploy_type }}"
+          
+          # Verificar arquivos essenciais
+          if [ -f "index.html" ]; then
+            echo "✅ index.html encontrado"
+          else
+            echo "❌ ERRO: index.html não encontrado!"
+            exit 1
+          fi
+          
+          if [ -d "js" ]; then
+            echo "✅ Pasta js encontrada"
+          else
+            echo "⚠️ Pasta js não encontrada"
+          fi
+          
+          if [ -d "css" ]; then
+            echo "✅ Pasta css encontrada"
+          else
+            echo "⚠️ Pasta css não encontrada"
+          fi
+      
+      - name: 📊 Resumo da validação
+        run: |
+          echo "📊 Estatísticas do projeto:"
+          echo "- Arquivos HTML: $(find . -name '*.html' | wc -l)"
+          echo "- Arquivos JS: $(find . -name '*.js' | wc -l)"
+          echo "- Arquivos CSS: $(find . -name '*.css' | wc -l)"
+          echo "- Tamanho total: $(du -sh . | cut -f1)"
+
+  # Job 2: Preparar para deploy
+  prepare:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: ${{ inputs.deploy_type != 'assets-only' }}
+    
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v3
+      
+      - name: 🛠️ Preparar arquivos
+        run: |
+          echo "🔧 Preparando para deploy ${{ inputs.deploy_type }}..."
+          
+          # Criar pasta de distribuição
+          mkdir -p dist
+          
+          # Copiar arquivos base
+          cp index.html dist/
+          cp -r js dist/ 2>/dev/null || echo "Sem pasta js"
+          cp -r css dist/ 2>/dev/null || echo "Sem pasta css"
+          cp -r assets dist/ 2>/dev/null || echo "Sem pasta assets"
+          
+          # Criar versão de produção se necessário
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            echo "🔒 Configurando para produção..."
+            # Adicionar meta tags de segurança
+            sed -i 's/<head>/<head>\n<meta http-equiv="Content-Security-Policy" content="default-src self">/' dist/index.html
+          fi
+          
+          echo "✅ Preparação concluída!"
+      
+      - name: 📦 Criar artefato
+        uses: actions/upload-artifact@v3
+        with:
+          name: chatbot-build-${{ github.run_number }}
+          path: dist/
+
+  # Job 3: Deploy
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    if: ${{ inputs.deploy_type != 'assets-only' }}
+    
+    steps:
+      - name: 📥 Download do artefato
+        uses: actions/download-artifact@v3
+        with:
+          name: chatbot-build-${{ github.run_number }}
+      
+      - name: 🚀 Deploy para GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          commit_message: "🚀 ${{ inputs.message }} [${{ inputs.environment }}]"
+      
+      - name: ✅ Confirmação de deploy
+        run: |
+          echo "🎉 Deploy concluído!"
+          echo "📝 Mensagem: ${{ inputs.message }}"
+          echo "🌐 Ambiente: ${{ inputs.environment }}"
+          echo "🔢 Build número: ${{ github.run_number }}"
+
+  # Job 4: Deploy rápido (apenas assets)
+  quick-deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: ${{ inputs.deploy_type == 'assets-only' }}
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
+      
+      - name: ⚡ Deploy rápido
+        run: |
+          echo "⚡ Executando deploy rápido..."
+          echo "Apenas atualizando assets..."
+      
+      - name: 🚀 Publicar
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          enable_jekyll: false
+
+  # Job 5: Notificação
+  notify:
+    needs: [deploy, quick-deploy]
+    runs-on: ubuntu-latest
+    if: ${{ inputs.notify == true && always() }}
+    
+    steps:
+      - name: 📧 Resumo final
+        run: |
+          echo "════════════════════════════════════"
+          echo "📊 RELATÓRIO DE DEPLOY"
+          echo "════════════════════════════════════"
+          echo "🕐 Horário: $(date)"
+          echo "👤 Autor: ${{ github.actor }}"
+          echo "🌿 Branch: ${{ github.ref_name }}"
+          echo "🌐 Ambiente: ${{ inputs.environment }}"
+          echo "📦 Tipo: ${{ inputs.deploy_type }}"
+          echo "💬 Mensagem: ${{ inputs.message }}"
+          echo "🔢 Build: #${{ github.run_number }}"
+          echo "════════════════════════════════════"
+          
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Status: SUCESSO"
+          else
+            echo "❌ Status: FALHA"
+          fi
