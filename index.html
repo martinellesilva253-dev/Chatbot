@@ -13,15 +13,16 @@
             <div class="sidebar-header">
                 <h2>🤖 BotBot</h2>
                 <p class="user-email">admin@botbot.local</p>
-                <button class="btn-sms" onclick="showSection('sms')">📱 SMS</button>
-                <button class="btn-connect" onclick="showSection('conectar-dispositivo')">📱 Conectar Dispositivo</button>
+                <button class="btn-sms" onclick="showSection('enviar-sms')">📱 SMS</button>
+                <button class="btn-connect" onclick="showSection('whatsapp-dispositivos')">📱 Conectar Dispositivo</button>
             </div>
             
             <nav class="nav-menu">
                 <div class="nav-section">
                     <div class="nav-title">Principal</div>
+                    <a href="#" onclick="showSection('dashboard')" class="nav-item">📊 Dashboard</a>
                     <a href="#" onclick="showSection('como-funciona')" class="nav-item">❓ Como Funciona</a>
-                    <a href="#" onclick="showSection('estatisticas')" class="nav-item">📊 Estatísticas</a>
+                    <a href="#" onclick="showSection('estatisticas')" class="nav-item">📈 Estatísticas</a>
                     <a href="#" onclick="showSection('enviar-sms')" class="nav-item">💬 Envia SMS</a>
                     <a href="#" onclick="showSection('mensagens')" class="nav-item">✉️ Mensagens</a>
                 </div>
@@ -91,37 +92,84 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Dashboard (Home) -->
+            
+            <!-- ==================== DASHBOARD ==================== -->
             <section id="dashboard" class="content-section active">
                 <h1>📊 Dashboard</h1>
                 <div class="stats-grid">
-                    <div class="stat-card"><h3>📱 WhatsApp</h3><div class="value">2</div><p>Dispositivos</p></div>
-                    <div class="stat-card"><h3>✈️ Telegram</h3><div class="value">1</div><p>Dispositivos</p></div>
-                    <div class="stat-card"><h3>📧 E-mail</h3><div class="value">45</div><p>Enviados hoje</p></div>
-                    <div class="stat-card"><h3>💬 SMS</h3><div class="value">12</div><p>Enviados hoje</p></div>
-                    <div class="stat-card"><h3>📨 Total</h3><div class="value">1,458</div><p>Mensagens/mês</p></div>
-                    <div class="stat-card"><h3>👥 Contatos</h3><div class="value">345</div><p>Total</p></div>
+                    <div class="stat-card" onclick="showSection('whatsapp-dispositivos')" style="cursor:pointer;">
+                        <h3>📱 WhatsApp</h3>
+                        <div class="value" id="whatsappDashboardStatus">⚫</div>
+                        <p id="whatsappDashboardText">Desconectado</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>💬 Mensagens Hoje</h3>
+                        <div class="value" id="mensagensHoje">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🔑 Chaves API</h3>
+                        <div class="value" id="chavesCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>📇 Contatos</h3>
+                        <div class="value">345</div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Como Funciona -->
+            <!-- ==================== WHATSAPP DISPOSITIVOS ==================== -->
+            <section id="whatsapp-dispositivos" class="content-section">
+                <h1>📱 Conectar WhatsApp</h1>
+                
+                <div id="whatsappConnectionArea">
+                    <!-- Formulário de conexão -->
+                    <div class="connection-form">
+                        <h3>🔌 Gerar Código de Conexão</h3>
+                        <p style="color:#666; margin-bottom:15px;">
+                            Digite o número do WhatsApp para gerar o código de emparelhamento
+                        </p>
+                        
+                        <div class="input-group">
+                            <label>Número do WhatsApp</label>
+                            <input type="tel" id="whatsappNumber" 
+                                   placeholder="5511999999999"
+                                   style="font-size:18px; padding:15px;">
+                            <small>Formato: 55 + DDD + Número (apenas números)</small>
+                        </div>
+                        
+                        <button class="btn btn-success btn-large" onclick="conectarWhatsAppViaNumero()"
+                                style="width:100%; padding:15px; font-size:18px; margin-top:15px;">
+                            🔌 Gerar Código de Conexão
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Dispositivos Conectados -->
+                <div style="margin-top:30px;">
+                    <h3>📱 Dispositivos Conectados</h3>
+                    <div id="whatsappDevices">
+                        <p style="color:#999; text-align:center; padding:20px;">
+                            Nenhum dispositivo conectado
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== DEMAIS SEÇÕES ==================== -->
             <section id="como-funciona" class="content-section">
                 <h1>❓ Como Funciona</h1>
                 <div class="guide">
-                    <h3>📋 Guia Rápido</h3>
                     <ol>
-                        <li>Conecte seu dispositivo WhatsApp ou Telegram</li>
-                        <li>Configure seus chatbots e templates</li>
+                        <li>Conecte seu WhatsApp gerando o código de emparelhamento</li>
+                        <li>Configure chatbots e templates</li>
                         <li>Crie campanhas e mensagens programadas</li>
                         <li>Monitore estatísticas e diagnósticos</li>
-                        <li>Gerencie contatos e atribuições</li>
                     </ol>
                 </div>
             </section>
 
-            <!-- Estatísticas -->
             <section id="estatisticas" class="content-section">
-                <h1>📊 Estatísticas</h1>
+                <h1>📈 Estatísticas</h1>
                 <table>
                     <tr><th>Período</th><th>Enviadas</th><th>Entregues</th><th>Lidas</th></tr>
                     <tr><td>Hoje</td><td>245</td><td>240</td><td>185</td></tr>
@@ -130,127 +178,106 @@
                 </table>
             </section>
 
-            <!-- Enviar SMS -->
             <section id="enviar-sms" class="content-section">
                 <h1>💬 Enviar SMS</h1>
                 <input type="tel" id="smsNumber" placeholder="Número do destinatário">
-                <textarea id="smsMessage" placeholder="Digite a mensagem SMS (160 caracteres)" maxlength="160"></textarea>
+                <textarea id="smsMessage" placeholder="Digite a mensagem (160 caracteres)" maxlength="160"></textarea>
                 <button class="btn btn-primary" onclick="enviarSMS()">📱 Enviar SMS</button>
                 <div id="smsResult"></div>
             </section>
 
-            <!-- Mensagens -->
             <section id="mensagens" class="content-section">
                 <h1>✉️ Mensagens</h1>
-                <table id="tabelaMensagens">
+                <table>
                     <tr><th>Data</th><th>Para</th><th>Mensagem</th><th>Status</th></tr>
+                    <tr><td>Hoje</td><td>+5511999999999</td><td>Olá!</td><td>✅</td></tr>
                 </table>
             </section>
 
-            <!-- WhatsApp Dispositivos -->
-            <section id="whatsapp-dispositivos" class="content-section">
-                <h1>📱 Dispositivos WhatsApp</h1>
-                <button class="btn btn-success" onclick="conectarWhatsApp()">➕ Conectar Novo Dispositivo</button>
-                <div id="whatsappDevices"></div>
-            </section>
-
-            <!-- Chatbots -->
             <section id="chatbots" class="content-section">
                 <h1>🤖 Chatbots</h1>
                 <button class="btn btn-primary" onclick="criarChatbot()">➕ Novo Chatbot</button>
                 <div id="listaChatbots"></div>
             </section>
 
-            <!-- Testar Chatbot -->
             <section id="testar-chatbot" class="content-section">
                 <h1>🧪 Testar Chatbot</h1>
                 <div class="chat-container">
-                    <div class="chat-messages" id="chatbotMessages"></div>
+                    <div class="chat-messages" id="chatbotMessages">
+                        <div style="text-align:center; color:#999; padding:40px;">
+                            Conecte o WhatsApp para testar
+                        </div>
+                    </div>
                     <div class="chat-input-area">
-                        <input type="text" id="chatbotInput" placeholder="Teste seu chatbot...">
-                        <button class="btn btn-primary" onclick="testarChatbot()">Enviar</button>
+                        <input type="text" id="chatbotInput" placeholder="Digite uma mensagem...">
+                        <button class="btn btn-primary" onclick="testarChatbot()">📤 Enviar</button>
                     </div>
                 </div>
             </section>
 
-            <!-- Templates -->
             <section id="templates" class="content-section">
                 <h1>📋 Templates</h1>
                 <button class="btn btn-primary" onclick="criarTemplate()">➕ Novo Template</button>
                 <div id="listaTemplates"></div>
             </section>
 
-            <!-- Mensagens Enviadas -->
             <section id="mensagens-enviadas" class="content-section">
                 <h1>📨 Histórico de Mensagens</h1>
                 <table>
                     <tr><th>Data</th><th>Destinatário</th><th>Mensagem</th><th>Status</th></tr>
-                    <tr><td>2024-01-15 14:30</td><td>+5511999999999</td><td>Olá! Como vai?</td><td>✅ Entregue</td></tr>
-                    <tr><td>2024-01-15 13:20</td><td>+5511888888888</td><td>Promoção imperdível!</td><td>✅ Entregue</td></tr>
+                    <tr><td>15/01/2024</td><td>+5511999999999</td><td>Olá!</td><td>✅ Entregue</td></tr>
                 </table>
             </section>
 
-            <!-- Diagnósticos -->
             <section id="diagnosticos" class="content-section">
                 <h1>🔍 Diagnósticos</h1>
-                <p>✅ WhatsApp: Conectado</p>
-                <p>✅ Telegram: Conectado</p>
-                <p>✅ E-mail: Configurado</p>
-                <p>⚠️ SMS: Verificar saldo</p>
+                <p id="diagWhatsApp">⚫ WhatsApp: Desconectado</p>
+                <p>✅ Sistema: Operacional</p>
             </section>
 
-            <!-- Campanhas -->
             <section id="campanhas" class="content-section">
                 <h1>📢 Campanhas</h1>
                 <button class="btn btn-primary" onclick="criarCampanha()">➕ Nova Campanha</button>
                 <div id="listaCampanhas"></div>
             </section>
 
-            <!-- Mensagens Programadas -->
             <section id="mensagens-programadas" class="content-section">
                 <h1>⏰ Mensagens Programadas</h1>
                 <input type="datetime-local" id="dataProgramada">
-                <textarea id="msgProgramada" placeholder="Mensagem..."></textarea>
-                <button class="btn btn-primary" onclick="programarMensagem()">Agendar</button>
+                <textarea id="msgProgramada" placeholder="Mensagem a ser enviada..."></textarea>
+                <button class="btn btn-primary" onclick="programarMensagem()">📅 Agendar</button>
             </section>
 
-            <!-- Mensagem em Massa -->
             <section id="mensagem-massa" class="content-section">
                 <h1>📨 Mensagem em Massa</h1>
                 <textarea id="msgMassa" placeholder="Digite a mensagem para envio em massa..."></textarea>
-                <input type="file" id="listaContatos" accept=".csv">
-                <button class="btn btn-primary" onclick="enviarMassa()">Enviar em Massa</button>
+                <button class="btn btn-primary" onclick="enviarMassa()">🚀 Enviar em Massa</button>
             </section>
 
-            <!-- Atribuições de Chat -->
             <section id="atribuicoes-chat" class="content-section">
                 <h1>👥 Atribuições de Chat</h1>
                 <p>Configure quais atendentes receberão os chats</p>
             </section>
 
-            <!-- Enviar Mensagem -->
             <section id="enviar-mensagem" class="content-section">
                 <h1>💬 Enviar Mensagem</h1>
-                <input type="tel" id="msgNumber" placeholder="Número">
-                <textarea id="msgTexto" placeholder="Mensagem"></textarea>
-                <button class="btn btn-success" onclick="enviarMsg()">Enviar</button>
+                <input type="tel" id="msgNumber" placeholder="Número do destinatário">
+                <textarea id="msgTexto" placeholder="Digite a mensagem..."></textarea>
+                <button class="btn btn-success" onclick="enviarMsg()">📤 Enviar</button>
             </section>
 
-            <!-- Transcrição de Áudio -->
             <section id="transcricao-audio" class="content-section">
                 <h1>🎤 Transcrição de Áudio</h1>
                 <input type="file" accept="audio/*">
-                <button class="btn btn-primary">Transcrever</button>
+                <button class="btn btn-primary">🎙️ Transcrever</button>
             </section>
 
-            <!-- Aquecimento -->
             <section id="aquecimento" class="content-section">
                 <h1>🌡️ Aquecimento de Número</h1>
                 <p>Envie mensagens gradualmente para aquecer seu número</p>
                 <button class="btn btn-primary">Iniciar Aquecimento</button>
             </section>
 
-            <!-- Evitar Banimento -->
             <section id="evitar-banimento" class="content-section">
                 <h1>🛡️ Evitar Banimento</h1>
                 <ul>
@@ -261,35 +288,32 @@
                 </ul>
             </section>
 
-            <!-- Resolver Banimento -->
             <section id="resolver-banimento" class="content-section">
                 <h1>🔧 Resolver Banimento</h1>
                 <p>Entre em contato com o suporte do WhatsApp</p>
                 <button class="btn btn-primary">Solicitar Revisão</button>
             </section>
 
-            <!-- Todos os Contatos -->
             <section id="todos-contatos" class="content-section">
                 <h1>📇 Todos os Contatos</h1>
-                <input type="text" placeholder="Buscar contato..." id="buscaContato">
+                <input type="text" placeholder="Buscar contato..." style="margin-bottom:15px;">
                 <table id="tabelaContatos">
                     <tr><th>Nome</th><th>Telefone</th><th>Email</th></tr>
+                    <tr><td>João Silva</td><td>+5511999999999</td><td>joao@email.com</td></tr>
+                    <tr><td>Maria Santos</td><td>+5511888888888</td><td>maria@email.com</td></tr>
                 </table>
             </section>
 
-            <!-- Telegram Dispositivos -->
             <section id="telegram-dispositivos" class="content-section">
                 <h1>✈️ Dispositivos Telegram</h1>
                 <button class="btn btn-primary">Conectar Telegram</button>
             </section>
 
-            <!-- E-mail Estatísticas -->
             <section id="email-estatisticas" class="content-section">
                 <h1>📊 Estatísticas de E-mail</h1>
                 <p>Enviados: 1,200 | Abertos: 450 | Clicados: 120</p>
             </section>
 
-            <!-- Enviar E-mail -->
             <section id="enviar-email" class="content-section">
                 <h1>📧 Enviar E-mail</h1>
                 <input type="email" placeholder="Para:">
@@ -298,13 +322,11 @@
                 <button class="btn btn-primary">Enviar E-mail</button>
             </section>
 
-            <!-- E-mail Templates -->
             <section id="email-templates" class="content-section">
                 <h1>📋 Templates de E-mail</h1>
                 <button class="btn btn-primary">Novo Template</button>
             </section>
 
-            <!-- E-mail Enviados -->
             <section id="email-enviados" class="content-section">
                 <h1>✉️ E-mails Enviados</h1>
                 <table>
@@ -312,45 +334,38 @@
                 </table>
             </section>
 
-            <!-- Apps e API -->
             <section id="apps-api" class="content-section">
                 <h1>🔌 Apps e API</h1>
-                <h3>🔑 Chaves API</h3>
-                <button class="btn btn-primary" onclick="gerarAppKey()">Gerar App Key</button>
-                <button class="btn btn-primary" onclick="gerarAuthKey()">Gerar Auth Key</button>
-                <button class="btn btn-primary" onclick="gerarAPIKey()">Gerar Chave API</button>
+                <div class="btn-group" style="margin-bottom:20px;">
+                    <button class="btn btn-primary" onclick="gerarAppKey()">📱 Gerar App Key</button>
+                    <button class="btn btn-primary" onclick="gerarAuthKey()">🔐 Gerar Auth Key</button>
+                    <button class="btn btn-primary" onclick="gerarAPIKey()">🔌 Gerar Chave API</button>
+                </div>
                 <div id="apiKeysDisplay"></div>
             </section>
 
-            <!-- Complementos -->
             <section id="complementos" class="content-section">
                 <h1>🧩 Complementos</h1>
                 <p>Integrações disponíveis</p>
             </section>
 
-            <!-- Novidades -->
             <section id="novidades" class="content-section">
                 <h1>🆕 Novidades</h1>
-                <p>v2.0 - Novo sistema de campanhas</p>
-                <p>v1.9 - Integração com Telegram</p>
+                <p>v2.0 - Sistema de conexão via código</p>
             </section>
 
-            <!-- Assinatura -->
             <section id="assinatura" class="content-section">
                 <h1>💎 Assinatura</h1>
-                <p>Plano: Profissional</p>
-                <p>Valor: R$ 79,90/mês</p>
+                <p>Plano: Profissional - R$ 79,90/mês</p>
                 <button class="btn btn-primary">Gerenciar Assinatura</button>
             </section>
 
-            <!-- Ajuda e Suporte -->
             <section id="ajuda-suporte" class="content-section">
                 <h1>🎯 Ajuda e Suporte</h1>
-                <p>Email: suporte@botbot.local</p>
-                <p>WhatsApp: (11) 99999-9999</p>
+                <p>📧 Email: suporte@botbot.local</p>
+                <p>📱 WhatsApp: (11) 99999-9999</p>
             </section>
 
-            <!-- Configurações do Perfil -->
             <section id="configuracoes-perfil" class="content-section">
                 <h1>👤 Configurações do Perfil</h1>
                 <input type="text" placeholder="Nome" value="Admin">
@@ -358,17 +373,20 @@
                 <button class="btn btn-primary">Salvar</button>
             </section>
 
-            <!-- Chave de Autenticação -->
             <section id="chave-autenticacao" class="content-section">
                 <h1>🔑 Chave de Autenticação</h1>
-                <p>App Key: <span id="appKeyDisplay">-</span></p>
-                <p>Auth Key: <span id="authKeyDisplay">-</span></p>
-                <p>API Key: <span id="apiKeyDisplay">-</span></p>
-                <button class="btn btn-primary" onclick="gerarTodasChaves()">Gerar Todas as Chaves</button>
+                <p><strong>App Key:</strong> <span id="appKeyDisplay">-</span></p>
+                <p><strong>Auth Key:</strong> <span id="authKeyDisplay">-</span></p>
+                <p><strong>API Key:</strong> <span id="apiKeyDisplay">-</span></p>
+                <button class="btn btn-primary" onclick="gerarTodasChaves()">Gerar Todas</button>
             </section>
+
         </main>
     </div>
 
+    <!-- Toast -->
+    <div id="toast" class="toast" style="display:none;"></div>
+
     <script src="js/app.js"></script>
 </body>
-                </html>
+    </html>
