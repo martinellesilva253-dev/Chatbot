@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout do código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # ✅ v3 → v4
       
       - name: 🔍 Verificar estrutura
         run: |
@@ -49,7 +49,6 @@ jobs:
           echo "Ambiente: ${{ inputs.environment }}"
           echo "Tipo de deploy: ${{ inputs.deploy_type }}"
           
-          # Verificar arquivos essenciais
           if [ -f "index.html" ]; then
             echo "✅ index.html encontrado"
           else
@@ -85,32 +84,27 @@ jobs:
     
     steps:
       - name: 📥 Checkout do código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # ✅ v3 → v4
       
       - name: 🛠️ Preparar arquivos
         run: |
           echo "🔧 Preparando para deploy ${{ inputs.deploy_type }}..."
           
-          # Criar pasta de distribuição
           mkdir -p dist
-          
-          # Copiar arquivos base
           cp index.html dist/
           cp -r js dist/ 2>/dev/null || echo "Sem pasta js"
           cp -r css dist/ 2>/dev/null || echo "Sem pasta css"
           cp -r assets dist/ 2>/dev/null || echo "Sem pasta assets"
           
-          # Criar versão de produção se necessário
           if [ "${{ inputs.environment }}" = "production" ]; then
             echo "🔒 Configurando para produção..."
-            # Adicionar meta tags de segurança
             sed -i 's/<head>/<head>\n<meta http-equiv="Content-Security-Policy" content="default-src self">/' dist/index.html
           fi
           
           echo "✅ Preparação concluída!"
       
       - name: 📦 Criar artefato
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # ✅ v3 → v4
         with:
           name: chatbot-build-${{ github.run_number }}
           path: dist/
@@ -123,7 +117,7 @@ jobs:
     
     steps:
       - name: 📥 Download do artefato
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4  # ✅ v3 → v4
         with:
           name: chatbot-build-${{ github.run_number }}
       
@@ -150,7 +144,7 @@ jobs:
     
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # ✅ v3 → v4
       
       - name: ⚡ Deploy rápido
         run: |
