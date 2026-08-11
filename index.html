@@ -8,13 +8,11 @@
 </head>
 <body>
     <div id="app">
-        <!-- Header -->
         <header class="header">
             <h1>🤖 WhatsApp Chatbot System</h1>
-            <p>Sistema completo de chatbot com API integrada</p>
+            <p>Sistema completo de chatbot com geração de chaves API e conexão via número</p>
         </header>
 
-        <!-- Main Content -->
         <main class="container">
             <!-- Dashboard -->
             <section class="dashboard">
@@ -28,55 +26,135 @@
                         <div class="value" id="messagesToday">0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>🔑 Chaves Geradas</h3>
+                        <h3>🔑 Chaves Ativas</h3>
                         <div class="value" id="keysGenerated">0</div>
                     </div>
                 </div>
             </section>
 
-            <!-- API Key Management -->
+            <!-- 🔑 Gerenciamento de Chaves API -->
             <section class="api-keys">
                 <h2>🔐 Gerenciamento de Chaves API</h2>
+                
                 <div class="key-generator">
-                    <button onclick="generateAppKey()" class="btn btn-primary">
-                        Gerar App Key
+                    <button onclick="generateAppKey()" class="btn btn-app-key">
+                        📱 Gerar App Key
                     </button>
-                    <button onclick="generateAuthKey()" class="btn btn-secondary">
-                        Gerar Auth Key
+                    <button onclick="generateAuthKey()" class="btn btn-auth-key">
+                        🔐 Gerar Auth Key
+                    </button>
+                    <button onclick="generateAPIKey()" class="btn btn-api-key">
+                        🔌 Gerar Chave API
                     </button>
                 </div>
-                <div id="keysDisplay" class="keys-display"></div>
+                
+                <div class="key-actions-bar">
+                    <button onclick="exportKeys()" class="btn-export">
+                        📥 Exportar Chaves
+                    </button>
+                    <button onclick="importKeysPrompt()" class="btn-import">
+                        📤 Importar Chaves
+                    </button>
+                    <button onclick="revokeAllKeys()" class="btn-revoke-all">
+                        🗑️ Revogar Todas
+                    </button>
+                </div>
+                
+                <div id="keysDisplay" class="keys-display">
+                    <div class="no-keys">
+                        <p>🔐 Nenhuma chave gerada</p>
+                        <small>Clique nos botões acima para gerar suas chaves</small>
+                    </div>
+                </div>
             </section>
 
-            <!-- WhatsApp Connection -->
+            <!-- 📱 Conexão WhatsApp via Número -->
             <section class="whatsapp-connect">
-                <h2>📱 Conectar WhatsApp</h2>
-                <form id="whatsappForm">
-                    <input type="text" id="phoneNumber" placeholder="Número do WhatsApp" required>
-                    <input type="text" id="botName" placeholder="Nome do Bot" required>
-                    <button type="submit" class="btn btn-success">Conectar</button>
-                </form>
-                <div id="connectionStatus"></div>
-                <div id="qrCode"></div>
+                <h2>📱 Conectar WhatsApp via Número</h2>
+                
+                <div class="connect-form">
+                    <div class="form-group">
+                        <label>Número do WhatsApp (com código do país)</label>
+                        <input type="tel" id="phoneNumber" placeholder="5511999999999" required>
+                        <small>Exemplo: 55 + DDD + Número (apenas números)</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nome do Bot</label>
+                        <input type="text" id="botName" placeholder="Nome do seu atendente virtual" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Método de Conexão</label>
+                        <select id="connectionMethod">
+                            <option value="direct">Conexão Direta (Número)</option>
+                            <option value="qrcode">QR Code (WhatsApp Web)</option>
+                            <option value="api">API Oficial (Token)</option>
+                        </select>
+                    </div>
+                    
+                    <div id="apiCredentials" style="display:none;">
+                        <div class="form-group">
+                            <label>Phone Number ID</label>
+                            <input type="text" id="phoneNumberId" placeholder="ID do número no Meta">
+                        </div>
+                        <div class="form-group">
+                            <label>Access Token</label>
+                            <input type="password" id="accessToken" placeholder="Token de acesso permanente">
+                        </div>
+                    </div>
+                    
+                    <button onclick="connectWhatsApp()" class="btn btn-success btn-connect">
+                        🔌 Conectar WhatsApp
+                    </button>
+                    <button onclick="disconnectWhatsApp()" class="btn btn-danger btn-disconnect" style="display:none;">
+                        ❌ Desconectar
+                    </button>
+                </div>
+                
+                <!-- Status da Conexão -->
+                <div id="connectionStatus" class="connection-status"></div>
+                
+                <!-- QR Code (aparece quando selecionado) -->
+                <div id="qrCodeArea" class="qr-area" style="display:none;">
+                    <h3>📷 Escaneie o QR Code</h3>
+                    <div id="qrCode"></div>
+                    <div class="qr-instructions">
+                        <p>1. Abra o WhatsApp no seu celular</p>
+                        <p>2. Vá em <strong>Aparelhos Conectados</strong></p>
+                        <p>3. Toque em <strong>Conectar um aparelho</strong></p>
+                        <p>4. Escaneie o QR Code acima</p>
+                    </div>
+                </div>
             </section>
 
-            <!-- Chat Test -->
+            <!-- 💬 Chat Test -->
             <section class="chat-test">
                 <h2>💬 Testar Chatbot</h2>
                 <div class="chat-window" id="chatWindow">
-                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message message-system">
+                            <div class="message-content">
+                                👋 Bem-vindo! Conecte o WhatsApp e comece a testar.
+                            </div>
+                            <div class="message-time" id="welcomeTime"></div>
+                        </div>
+                    </div>
                     <div class="chat-input">
-                        <input type="text" id="messageInput" placeholder="Digite uma mensagem...">
-                        <button onclick="sendMessage()" class="btn btn-primary">Enviar</button>
+                        <input type="text" id="messageInput" placeholder="Digite uma mensagem para testar...">
+                        <button onclick="sendMessage()" class="btn btn-primary">📤 Enviar</button>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
+    <!-- Toast de Notificação -->
+    <div id="toast" class="toast" style="display: none;"></div>
+
     <script src="js/api.js"></script>
     <script src="js/keys.js"></script>
     <script src="js/chatbot.js"></script>
     <script src="js/main.js"></script>
 </body>
-                      </html>
+</html>
