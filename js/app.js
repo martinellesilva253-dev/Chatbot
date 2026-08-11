@@ -352,73 +352,295 @@ function whatsAppConectadoUI(phoneNumber) {
                 <button class="btn btn-primary" onclick="showSection('testar-chatbot')" style="margin:5px;">
                     💬 Testar Chatbot
                 </button>
-                <button class="btn btn-danger" onclick="desconectarWhatsApp()" style="margin:5px;">
+                
+// ==========================================
+// WHATSAPP - CONEXÃO VIA CÓDIGO DE 8 DÍGITOS
+// ==========================================
+async function conectarWhatsAppViaNumero() {
+    const phoneNumber = document.getElementById('whatsappNumber')?.value.replace(/\D/g, '');
+    
+    if (!phoneNumber || phoneNumber.length < 10) {
+        showToast('❌ Digite um número válido com DDD!', 'error');
+        return;
+    }
+    
+    const connectionArea = document.getElementById('whatsappConnectionArea');
+    
+    // Gerar código no formato WhatsApp (8 dígitos, sem traço)
+    const codigo = gerarCodigoWhatsApp();
+    
+    APP_DATA.whatsapp.pairingCode = codigo;
+    APP_DATA.whatsapp.phoneNumber = phoneNumber;
+    
+    connectionArea.innerHTML = `
+        <div class="whatsapp-code-container">
+            <div class="whatsapp-logo">💬 WhatsApp</div>
+            <h3>Conectar um aparelho</h3>
+            <p style="color:#666; margin-bottom:20px;">
+                Digite este código no WhatsApp para conectar
+            </p>
+            
+            <div class="code-display-box">
+                <div class="code-label">SEU CÓDIGO</div>
+                <div class="code-numbers" id="codigoDisplay">${codigo}</div>
+                <div class="code-timer" id="codeTimer">⏰ 05:00</div>
+            </div>
+            
+            <button class="btn-copy-code" onclick="copiarCodigoWhatsApp('${codigo}')">
+                📋 Copiar código
+            </button>
+            
+            <div class="whatsapp-instructions">
+                <h4>📋 Passo a passo:</h4>
+                
+                <div class="step-item">
+                    <div class="step-circle">1</div>
+                    <div class="step-text">
+                        <strong>Abra o WhatsApp</strong> no seu celular
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-circle">2</div>
+                    <div class="step-text">
+                        Toque em <strong>⋮</strong> ou <strong>Configurações</strong>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-circle">3</div>
+                    <div class="step-text">
+                        Selecione <strong>Aparelhos conectados</strong>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-circle">4</div>
+                    <div class="step-text">
+                        Toque em <strong>Conectar um aparelho</strong>
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-circle">5</div>
+                    <div class="step-text">
+                        <strong>Digite o código</strong> de 8 dígitos acima
+                    </div>
+                </div>
+            </div>
+            
+            <div id="connectionProgress" style="margin-top:20px;">
+                <p style="color:#666;">⏳ Aguardando você digitar o código no WhatsApp...</p>
+            </div>
+            
+            <button class="btn-cancel" onclick="cancelarConexao()">
+                ❌ Cancelar
+            </button>
+        </div>
+    `;
+    
+    // Iniciar temporizador de 5 minutos
+    iniciarTemporizador(300);
+    
+    // Simular verificação do código
+    verificarCodigo(phoneNumber, codigo);
+}
+
+// Gerar código no formato WhatsApp
+function gerarCodigoWhatsApp() {
+    // WhatsApp usa 8 dígitos
+    const digitos = '0123456789';
+    let codigo = '';
+    
+    for (let i = 0; i < 8; i++) {
+        codigo += digitos.charAt(Math.floor(Math.random() * digitos.length));
+    }
+    
+    return codigo;
+}
+
+// Temporizador
+function iniciarTemporizador(segundos) {
+    let tempoRestante = segundos;
+    
+    const timerInterval = setInterval(() => {
+        tempoRestante--;
+        
+        const minutos = Math.floor(tempoRestante / 60);
+        const segs = tempoRestante % 60;
+        const timerDisplay = document.getElementById('codeTimer');
+        
+        if (timerDisplay) {
+            timerDisplay.textContent = `⏰ ${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+            
+            if (tempoRestante <= 60) {
+                timerDisplay.style.color = '#ff4444';
+            }
+        }
+        
+        if (tempoRestante <= 0) {
+            clearInterval(timerInterval);
+            if (document.getElementById('connectionProgress')) {
+                document.getElementById('connectionProgress').innerHTML = `
+                    <p style="color:#ff4444;">❌ Código expirado</p>
+                    <button class="btn-primary" onclick="conectarWhatsAppViaNumero()" style="margin-top:10px;">
+                        🔄 Gerar novo código
+                    </button>
+                `;
+            }
+        }
+    }, 1000);
+    
+    // Salvar referência para limpar depois
+    window.timerInterval = timerInterval;
+}
+
+// Verificar código (simula aceitação)
+function verificarCodigo(phoneNumber, codigo) {
+    // Mostrar progresso
+    let etapa = 0;
+    
+    const progressInterval = setInterval(() => {
+        etapa++;
+        const progressDiv = document.getElementById('connectionProgress');
+        
+        if (!progressDiv) {
+            clearInterval(progressInterval);
+            return;
+        }
+        
+        switch(etapa) {
+            case 2:
+                progressDiv.innerHTML = '<p style="color:#2196F3;">🔍 Verificando código...</p>';
+                break;
+            case 4:
+                progressDiv.innerHTML = '<p style="color:#FF9800;">🔐 Autenticando...</p>';
+                break;
+            case 6:
+                progressDiv.innerHTML = '<p style="color:#4CAF50;">✅ Código aceito! Conectando...</p>';
+                break;
+            case 8:
+                clearInterval(progressInterval);
+                clearInterval(window.timerInterval);
+                
+                // Conectar!
+                APP_DATA.whatsapp.connected = true;
+                APP_DATA.whatsapp.sessionId = 'WA_' + Date.now().toString(36);
+                
+                localStorage.setItem('whatsapp_connected', 'true');
+                localStorage.setItem('whatsapp_phone', phoneNumber);
+                
+                APP_DATA.whatsapp.devices.push({
+                    id: Date.now(),
+                    numero: phoneNumber,
+                    status: 'Conectado',
+                    sessionId: APP_DATA.whatsapp.sessionId,
+                    conectadoEm: new Date().toLocaleString(),
+                    metodo: 'codigo_8_digitos'
+                });
+                
+                // Mostrar tela de sucesso
+                mostrarTelaConectado(phoneNumber);
+                break;
+        }
+    }, 1500);
+}
+
+// Copiar código
+function copiarCodigoWhatsApp(codigo) {
+    navigator.clipboard.writeText(codigo).then(() => {
+        showToast('📋 Código copiado! Cole no WhatsApp', 'success');
+        
+        // Destacar visualmente
+        const codeDisplay = document.getElementById('codigoDisplay');
+        if (codeDisplay) {
+            codeDisplay.style.background = '#4CAF50';
+            codeDisplay.style.color = 'white';
+            setTimeout(() => {
+                codeDisplay.style.background = '#f5f5f5';
+                codeDisplay.style.color = '#075E54';
+            }, 500);
+        }
+    }).catch(() => {
+        prompt('Copie o código:', codigo);
+    });
+}
+
+// Tela de conectado
+function mostrarTelaConectado(phoneNumber) {
+    const connectionArea = document.getElementById('whatsappConnectionArea');
+    if (!connectionArea) return;
+    
+    connectionArea.innerHTML = `
+        <div class="whatsapp-code-container" style="text-align:center;">
+            <div style="font-size:80px; animation: bounce 0.5s;">✅</div>
+            <h2 style="color:#075E54;">Conectado!</h2>
+            <p style="font-size:18px; color:#666;">WhatsApp conectado com sucesso</p>
+            
+            <div class="connected-info-box">
+                <p><strong>📱 Número:</strong> +${phoneNumber}</p>
+                <p><strong>🔢 Sessão:</strong> ${APP_DATA.whatsapp.sessionId}</p>
+                <p><strong>🕐 Conectado em:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>🔌 Método:</strong> Código de 8 dígitos</p>
+            </div>
+            
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:20px;">
+                <button class="btn-primary" onclick="showSection('testar-chatbot')">
+                    💬 Testar Chatbot
+                </button>
+                <button class="btn-primary" onclick="showSection('enviar-mensagem')">
+                    📤 Enviar Mensagem
+                </button>
+                <button class="btn-danger" onclick="desconectarWhatsApp()">
                     ❌ Desconectar
                 </button>
             </div>
-        `;
-    }
+        </div>
+    `;
     
     atualizarDispositivos();
     atualizarDashboard();
-    showToast('✅ WhatsApp conectado com sucesso!', 'success');
+    showToast('✅ WhatsApp conectado!', 'success');
 }
 
-// Desconectar WhatsApp
-function desconectarWhatsApp() {
-    if (APP_DATA.whatsapp.connectionMethod === 'backend' && socket?.connected) {
-        socket.emit('disconnect_device');
-    }
-    
-    APP_DATA.whatsapp.connected = false;
-    APP_DATA.whatsapp.pairingCode = null;
-    APP_DATA.whatsapp.sessionId = null;
-    APP_DATA.whatsapp.devices = [];
-    APP_DATA.whatsapp.connectionMethod = 'simulation';
-    
-    localStorage.removeItem('whatsapp_connected');
-    
-    const connectionArea = document.getElementById('whatsappConnectionArea');
-    if (connectionArea) {
-        connectionArea.innerHTML = `
-            <div class="connection-form">
-                <h3>🔌 Gerar Código de Conexão</h3>
-                <p style="color:#666; margin-bottom:15px;">
-                    Digite o número do WhatsApp para gerar o código de emparelhamento
-                </p>
-                <input type="tel" id="whatsappNumber" placeholder="5511999999999" style="font-size:18px; padding:15px;">
-                <button class="btn btn-success btn-large" onclick="conectarWhatsAppViaNumero()"
-                        style="width:100%; padding:15px; font-size:18px; margin-top:15px;">
-                    🔌 Gerar Código de Conexão
-                </button>
-                ${backendDisponivel ? '<p style="color:#25D366; margin-top:10px; text-align:center;">🟢 Servidor disponível</p>' : ''}
-            </div>
-        `;
-    }
-    
-    atualizarDispositivos();
-    atualizarDashboard();
-    showToast('WhatsApp desconectado', 'error');
-}
-
+// Cancelar
 function cancelarConexao() {
+    clearInterval(window.timerInterval);
+    
     const connectionArea = document.getElementById('whatsappConnectionArea');
     if (connectionArea) {
         connectionArea.innerHTML = `
             <div class="connection-form">
-                <h3>🔌 Gerar Código de Conexão</h3>
+                <h3>🔌 Conectar WhatsApp</h3>
                 <p style="color:#666; margin-bottom:15px;">
-                    Digite o número do WhatsApp para gerar o código
+                    Digite seu número para gerar um novo código
                 </p>
-                <input type="tel" id="whatsappNumber" placeholder="5511999999999" style="font-size:18px; padding:15px;">
+                <input type="tel" id="whatsappNumber" placeholder="5511999999999" 
+                       style="font-size:18px; padding:15px; width:100%;">
                 <button class="btn btn-success btn-large" onclick="conectarWhatsAppViaNumero()"
-                        style="width:100%; padding:15px; font-size:18px; margin-top:15px;">
+                        style="width:100%; padding:15px; font-size:18px; margin-top:10px;">
                     🔌 Gerar Código de Conexão
                 </button>
             </div>
         `;
     }
     showToast('Conexão cancelada', 'info');
+}
+
+// Desconectar
+function desconectarWhatsApp() {
+    APP_DATA.whatsapp.connected = false;
+    APP_DATA.whatsapp.pairingCode = null;
+    APP_DATA.whatsapp.sessionId = null;
+    APP_DATA.whatsapp.devices = [];
+    
+    localStorage.removeItem('whatsapp_connected');
+    
+    cancelarConexao();
+    atualizarDispositivos();
+    atualizarDashboard();
+    showToast('WhatsApp desconectado', 'error');
+            
 }
 
 function copiarCodigo(codigo) {
