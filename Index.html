@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Chatbot WhatsApp - API</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <h1>🤖 WhatsApp Chatbot System</h1>
+            <p>Sistema completo de chatbot com API integrada</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container">
+            <!-- Dashboard -->
+            <section class="dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>📊 Conexões Ativas</h3>
+                        <div class="value" id="activeConnections">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>💬 Mensagens Hoje</h3>
+                        <div class="value" id="messagesToday">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>🔑 Chaves Geradas</h3>
+                        <div class="value" id="keysGenerated">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Key Management -->
+            <section class="api-keys">
+                <h2>🔐 Gerenciamento de Chaves API</h2>
+                <div class="key-generator">
+                    <button onclick="generateAppKey()" class="btn btn-primary">
+                        Gerar App Key
+                    </button>
+                    <button onclick="generateAuthKey()" class="btn btn-secondary">
+                        Gerar Auth Key
+                    </button>
+                </div>
+                <div id="keysDisplay" class="keys-display"></div>
+            </section>
+
+            <!-- WhatsApp Connection -->
+            <section class="whatsapp-connect">
+                <h2>📱 Conectar WhatsApp</h2>
+                <form id="whatsappForm">
+                    <input type="text" id="phoneNumber" placeholder="Número do WhatsApp" required>
+                    <input type="text" id="botName" placeholder="Nome do Bot" required>
+                    <button type="submit" class="btn btn-success">Conectar</button>
+                </form>
+                <div id="connectionStatus"></div>
+                <div id="qrCode"></div>
+            </section>
+
+            <!-- Chat Test -->
+            <section class="chat-test">
+                <h2>💬 Testar Chatbot</h2>
+                <div class="chat-window" id="chatWindow">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Digite uma mensagem...">
+                        <button onclick="sendMessage()" class="btn btn-primary">Enviar</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/keys.js"></script>
+    <script src="js/chatbot.js"></script>
+    <script src="js/main.js"></script>
+</body>
+                      </html>
