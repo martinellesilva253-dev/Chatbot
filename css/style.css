@@ -366,3 +366,145 @@ tr:hover td {
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
     }
+/* WhatsApp Code Container */
+.whatsapp-code-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.whatsapp-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #075E54;
+    margin-bottom: 20px;
+}
+
+.code-display-box {
+    background: linear-gradient(135deg, #075E54, #128C7E);
+    padding: 30px;
+    border-radius: 15px;
+    margin: 25px 0;
+}
+
+.code-label {
+    color: #aaa;
+    font-size: 12px;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+}
+
+.code-numbers {
+    font-size: 56px;
+    font-weight: bold;
+    color: white;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 10px;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+
+.code-timer {
+    color: #FFD700;
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+.btn-copy-code {
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: all 0.3s;
+}
+
+.btn-copy-code:hover {
+    background: #128C7E;
+    transform: scale(1.05);
+}
+
+.btn-cancel {
+    background: transparent;
+    color: #999;
+    border: 2px solid #e0e0e0;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    border-color: #ff4444;
+    color: #ff4444;
+}
+
+.whatsapp-instructions {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.whatsapp-instructions h4 {
+    color: #075E54;
+    margin-bottom: 15px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.step-item:last-child {
+    border-bottom: none;
+}
+
+.step-circle {
+    width: 35px;
+    height: 35px;
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.step-text {
+    font-size: 14px;
+    color: #333;
+}
+
+.connected-info-box {
+    background: #f0f7f4;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: left;
+    line-height: 2;
+}
+
+.connected-info-box p {
+    margin: 5px 0;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
